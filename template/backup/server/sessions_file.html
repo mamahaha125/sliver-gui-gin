@@ -67,7 +67,7 @@
 
     term.open(document.querySelector('#terminal')); // 挂载
 
-    const socket = new WebSocket(`ws://${window.location.host}/websocket`); // 创建WebSocket连接
+    const socket = new WebSocket(`ws://${window.location.host}/shell/websocket`); // 创建WebSocket连接
 
     term.onData((data) => { // 网页xterm窗口中有输入的数据
         // console.log('term.onData:', data);
