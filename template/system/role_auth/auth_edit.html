@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/component/pear/css/pear.css" />
+</head>
+<body>
+<form class="layui-form" action="" id="auth_add">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">权限名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="auth_name" value="{{.auth.AuthName}}" lay-verify="required" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">权限类型</label>
+                    <div class="layui-input-block">
+                        <select name="power_type" lay-verify="required" lay-search>
+                            <option value=""></option>
+                            <option value="0" {{if eq .auth.PowerType 0}}selected{{end}}>目录</option>
+                            <option value="1" {{if eq .auth.PowerType 1}}selected{{end}}>菜单</option>
+                            <option value="2" {{if eq .auth.PowerType 2}}selected{{end}}>按钮</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">上级权限</label>
+                    <div class="layui-input-block">
+                        <ul id="selectParent" name="parentId" class="dtree" data-id="-1"></ul>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">菜单地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="auth_url" value="{{.auth.AuthUrl}}" lay-verify="required" autocomplete="off"  class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">图标</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="icon" value="{{ .auth.Icon }}" name="icon" lay-filter="icon" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">排序</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="sort" value="{{.auth.Sort}}" autocomplete="off"  class="layui-input">
+                    </div>
+                </div>
+                <input type="hidden" name="id" value="{{.auth.ID}}">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否显示</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" name="is_show" value="1" lay-skin="switch" {{if eq .auth.IsShow 1}}checked{{end}}>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <button type="submit" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit="" lay-filter="user-save">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button type="reset" class="pear-btn pear-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>
+</form>
+<script src="/static/component/layui/layui.js"></script>
+<script src="/static/component/pear/pear.js"></script>
+<script>
+    layui.use(['form', 'jquery', 'iconPicker', 'dtree'], function () {
+        let form = layui.form;
+        let $ = layui.jquery;
+        let iconPicker = layui.iconPicker;
+        let dtree = layui.dtree;
+
+        dtree.renderSelect({
+            elem: "#selectParent",
+            url: "/system/auth/parent",
+            method: 'get',
+            selectInputName: {nodeId: "parentId", context: "powerName"},
+            skin: "layui",
+            dataFormat: "list",
+            response: {treeId: "powerId", parentId: "parentId", title: "powerName"},
+            selectInitVal: "{{ .auth.Pid }}"
+        });
+
+        form.on('submit(user-save)', function(data){
+            $.ajax({
+                url:'/system/auth/edit',
+                // data: $('#auth_add').serialize(),
+                data: JSON.stringify(data.field),
+                dataType:'json',
+                type:'post',
+                success:function(result){
+                    if(result.code == 200){
+                        layer.msg(result.msg,{icon:1,time:1000},function(){
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                            parent.render();
+                        });
+                    }else{
+                        layer.msg(result.msg,{icon:2,time:1000});
+                    }
+                }
+            })
+            return false;
+        });
+        iconPicker.render({
+            elem: '#icon',
+            type: 'fontClass',
+            search: true,
+            page: true,
+            limit: 12,
+            click: function (data) {
+                console.log(data);
+            }
+        });
+
+        iconPicker.checkIcon("icon", "{{ .auth.Icon }}");
+    })
+</script>
+<script>
+</script>
+</body>
+</html>

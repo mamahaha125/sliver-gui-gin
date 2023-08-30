@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/component/pear/css/pear.css" />
+</head>
+<body>
+<form class="layui-form" action="" id="spider_add">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">服务器名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="server_name" lay-verify="required" autocomplete="off"  class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">登录账号</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="server_account" lay-verify="required" autocomplete="off"  class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">IP地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="server_ip" lay-verify="required|ip" autocomplete="off"  class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">端口号</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="port" lay-verify="required|number" autocomplete="off"  class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">登陆类型</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="conn_type" lay-verify="type" lay-filter="type" value="1" title="密码" checked>
+                        <input type="radio" name="conn_type" lay-verify="type" lay-filter="type" value="2" title="密钥">
+                    </div>
+                </div>
+                <div class="layui-form-item conn-pwd">
+                    <label class="layui-form-label">密码</label>
+                    <div class="layui-input-block">
+                        <input type="password" name="server_password" autocomplete="off"  class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item conn-key" style="display:none;">
+                    <label class="layui-form-label">公钥地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="public_key_src" autocomplete="off"  class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item conn-key" style="display:none;">
+                    <label class="layui-form-label">私钥地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="private_key_src" autocomplete="off"  class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">服务器备注</label>
+                    <div class="layui-input-block">
+                        <textarea name="detail" placeholder="请输入服务器备注" class="layui-textarea"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <button type="submit" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit="" lay-filter="user-save">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button type="reset" class="pear-btn pear-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>
+</form>
+<script src="/static/component/layui/layui.js"></script>
+<script src="/static/component/pear/pear.js"></script>
+<script>
+    layui.use(['form','jquery'],function(){
+        let form = layui.form;
+        let $ = layui.jquery;
+
+        form.verify({
+            ip: [
+                /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
+                ,'IP地址不符合规则'
+            ]
+        });
+
+        form.on('radio(type)', function(data){
+            if(data.value==1){
+                $(".conn-pwd").show();
+                $(".conn-key").hide();
+            }else{
+                $(".conn-key").show();
+                $(".conn-pwd").hide();
+            }
+        });
+
+        form.on('submit(user-save)', function(data){
+            layer.load(2, { shade: [0.35, '#ccc'] });
+            $.ajax({
+                url:'/system/server/add',
+                data: $('#spider_add').serialize(),
+                dataType:'json',
+                type:'post',
+                success:function(result){
+                    layer.closeAll('loading');
+                    if(result.code == 200){
+                        layer.msg(result.msg,{icon:1,time:1000},function(){
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                            parent.layui.table.reload("role-table");
+                        });
+                    }else{
+                        layer.msg(result.msg,{icon:2,time:1000});
+                    }
+                }
+            })
+            return false;
+        });
+    })
+</script>
+<script>
+</script>
+</body>
+</html>

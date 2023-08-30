@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="utf-8">
+    <title>日志</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/component/pear/css/pear.css" />
+    <link rel="stylesheet" href="/static/admin/css/other/console2.css" />
+</head>
+<body class="pear-container">
+
+<div class="layui-card">
+    <div class="layui-card-body">
+        <div class="layui-tab layui-tab-card">
+            <ul class="layui-tab-title">
+                <li class="layui-this">登录日志</li>
+                <li>操作日志</li>
+            </ul>
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                    <table style="margin-top: 10px;" id="log-login-table" lay-filter="log-login-table"></table>
+                </div>
+                <div class="layui-tab-item">
+                    <table style="margin-top: 10px;" id="log-operate-table" lay-filter="log-operate-table"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script src="/static/component/layui/layui.js"></script>
+<script src="/static/component/pear/pear.js"></script>
+<script>
+    layui.use(['table', 'form', 'jquery', 'element', 'util'], function () {
+        let table = layui.table;
+        let form = layui.form;
+
+        let MODULE_PATH = "/system/log/";
+
+        let operate_cols = [
+            [
+                {title: 'ID', field: 'ID', align: 'center'},
+                {title: '请求方式', field: 'method', align: 'center'},
+                {title: '接口', field: 'oper_url', align: 'center'},
+                {title: '操作IP', field: 'oper_ip', align: 'center'},
+                {title: '操作地址', field: 'oper_location', align: 'center'},
+                {title: '访问时间', field: 'oper_time', align: 'center',templet:function(res){
+                        return layui.util.toDateString(res.oper_time,  "yyyy-MM-dd HH:mm:ss")}
+                },
+                {title: '操作人ID', field: 'oper_name', align: 'center'},
+                {title: '错误信息', field: 'error_msg', align: 'center'},
+                {title: '请求内容', field: 'oper_param', align: 'center'},
+                {title: '访问状态',  align: 'center',templet: function(res){
+                        if (res.error_msg == ""){
+                            return '<span style="color: green">成功</span>';
+                        }else{
+                            return '<span style="color: red">失败</span>';
+                        }}}
+            ]
+        ]
+
+        let login_cols = [
+            [
+                {title: 'ID', field: 'info_id', align: 'center'},
+                {title: '浏览器', field: 'browser', align: 'center'},
+                {title: '操作系统', field: 'os', align: 'center'},
+                {title: '操作IP', field: 'ip_addr', align: 'center',templet:function(res){
+                    if(res.ip_addr == "::1"){
+                        return '<span style="color: green">127.0.0.1</span>';
+                    }else{
+                        return '<span style="color: green">'+res.ip_addr+'</span>';
+                    }
+                }},
+                {title: '操作地址', field: 'login_location', align: 'center'},
+                {title: '访问时间', field: 'login_time', align: 'center',templet:function(res){
+                    return layui.util.toDateString(res.login_time,  "yyyy-MM-dd HH:mm:ss")}
+                    },
+                {title: '操作人', field: 'login_name', align: 'center'},
+                {title: '描述', field: 'msg', align: 'center'},
+                {title: '访问状态',  align: 'center',templet: function(res){
+                    if (res.status == 1){
+                        return '<span style="color: green">成功</span>';
+                    }else{
+                        return '<span style="color: red">失败</span>';
+                    }}}
+            ]
+        ]
+
+        table.render({
+            elem: '#log-operate-table',
+            url: MODULE_PATH + 'operate',
+            page: true,
+            cols: operate_cols,
+            skin: 'line',
+            toolbar: false
+        });
+
+        table.render({
+            elem: '#log-login-table',
+            url: MODULE_PATH + 'login',
+            page: true,
+            cols: login_cols,
+            skin: 'line',
+            toolbar: false
+        });
+
+        form.on('submit(dict-type-query)', function (data) {
+            table.reload('dict-type-table', {where: data.field})
+            return false;
+        });
+
+        table.on('tool(log-operate-table)', function (obj) {
+            if (obj.event === 'details') {
+                window.info(obj);
+            }
+        });
+
+        table.on('tool(log-login-table)', function (obj) {
+            if (obj.event === 'details') {
+                window.info(obj);
+            }
+        });
+
+        window.info = function (obj) {
+            layer.open({
+                type: 2,
+                title: '详细信息',
+                shade: 0,
+                area: ['400px', '400px'],
+                content: MODULE_PATH + "info",
+                success: function (layero) {
+                    let iframeWin = window[layero.find('iframe')[0]['name']];
+                    iframeWin.show(obj.data);
+                }
+            });
+        }
+    })
+</script>
+</html>

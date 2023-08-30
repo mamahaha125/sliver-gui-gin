@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>资源管理</title>
+    <link rel="stylesheet" href="/static/component/pear/css/pear.css"/>
+    <meta name="referrer" content="no-referrer"/>
+    <style>
+        .icon {
+            width: 1em;
+            height: 1em;
+            vertical-align: -0.15em;
+            fill: currentColor;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">服务器名称</label>
+                    <div class="layui-input-inline">
+
+                        <input type="text" name="name" placeholder="" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">IP</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="format" placeholder="" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">备注</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="detail" placeholder="" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="user-query">
+                        <i class="layui-icon layui-icon-search"></i>
+                        查询
+                    </button>
+                    <button type="reset" class="pear-btn pear-btn-md">
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        重置
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="role-table" lay-filter="role-table"></table>
+    </div>
+</div>
+
+<script type="text/html" id="user-toolbar">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        新增
+    </button>
+    <button class="pear-btn pear-btn-danger pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        删除
+    </button>
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="start">
+        <i class="layui-icon layui-icon-add-circle-fine"></i>
+        开启监听
+    </button>
+</script>
+
+<script type="text/html" id="server-bar">
+    <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>
+    </button>
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i class="layui-icon layui-icon-delete"></i>
+    </button>
+</script>
+
+<script src="/static/component/layui/layui.js"></script>
+<script src="/static/component/pear/pear.js"></script>
+<script src="/static/component/svg/iconfont.js"></script>
+<script>
+    layui.use(['table', 'form', 'jquery', 'common', 'upload'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let common = layui.common;
+        let upload = layui.upload;
+
+        $.ajaxSetup({
+            xhrFields: {
+                withCredentials: true
+            },
+        });
+        table.render({
+            elem: '#role-table',
+            url: '/implant/testb',
+            page: true,
+            cols: [
+                [   {type:'checkbox'},
+                    {
+                        field: 'osarch', title: '系统/架构', align: 'center', sort: true, templet: function (res) {
+                            var str = res.osarch
+                            if (str.includes("windows")) {
+                                return '<svg class="icon" aria-hidden="true"> <use xlink:href="#icon-Windows"></use> </svg> ' + res.osarch
+                            } else if (str.includes("mac")) {
+                                return '<svg class="icon" aria-hidden="true"> <use xlink:href="#icon-mac"></use> </svg> ' + res.osarch
+                            } else if (str.includes("linux")) {
+                                return '<svg class="icon" aria-hidden="true"> <use xlink:href="#icon-linux"></use> </svg> '  + res.osarch
+                            }
+                        }
+                    },
+                    {field: 'name', title: '名称', align: 'center', sort: true},
+                    {field: 'type', width: 75, title: '类型', align: 'center', sort: true},
+                    {field: 'format', title: '格式', align: 'center', sort: true},
+                    {field: 'c2', title: '连接地址', align: 'center', sort: true},
+                    {field: 'debug', title: '调试', width: 75, align: 'center', sort: true},
+                    {title: '操作', toolbar: '#server-bar', align: 'center', width: 140}
+                ]
+            ],
+            skin: 'line',
+            toolbar: '#user-toolbar',
+            defaultToolbar: [{
+                title: '刷新',
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        table.on('tool(role-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.del(obj);
+            } else if (obj.event === 'edit') {
+                window.edit(obj);
+            }
+        });
+
+        table.on('toolbar(role-table)', function (obj) {
+            if (obj.event === 'add') {
+                window.add();
+            } else if (obj.event === 'refresh') {
+                window.refresh();
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj);
+            } else if (obj.event === 'start') {
+                window.start();
+            }
+        });
+
+        form.on('submit(user-query)', function (data) {
+            table.reload('role-table', {
+                where: data.field
+            })
+            return false;
+        });
+
+        window.add = function () {
+            layer.open({
+                type: 2,
+                title: '新增',
+                shade: 0.1,
+                area: [common.isModile() ? '100%' : '800px', common.isModile() ? '100%' : '600px'],
+                content: '/system/site/edit'
+            });
+        }
+
+        window.start = function () {
+            var util = layui.util;
+            layer.open({
+                type: 1,
+                title: '开启监听',
+                shade: 0.1,
+                area: [common.isModile() ? '100%' : '350px', common.isModile() ? '100%' : '230px'],
+                content: `
+          <div class="layui-form" lay-filter="filter-test-layer" style="margin: 16px;">
+            <div class="demo-login-container">
+              <div class="layui-form-item">
+                <div class="layui-input-wrap">
+                  <div class="layui-input-prefix">
+                    <i class="layui-icon layui-icon-username"></i>
+
+                  </div>
+                  <input type="text" name="host" value="" lay-verify="required" placeholder="HOST" lay-reqtext="请填写用户名" autocomplete="off" class="layui-input" lay-affix="clear">
+                </div>
+              </div>
+              <div class="layui-form-item">
+                <div class="layui-input-wrap">
+                  <div class="layui-input-prefix">
+                    <i class="layui-icon layui-icon-password"></i>
+                  </div>
+                  <input type="password" name="port" value="" lay-verify="required" placeholder="PORT" lay-reqtext="请填写密码" autocomplete="off" class="layui-input" lay-affix="clear">
+                </div>
+              </div>
+              <div class="layui-form-item">
+                <button class="layui-btn layui-btn-fluid" lay-submit lay-filter="demo-login">开启</button>
+              </div>
+            </div>
+          </div>
+        `,
+                success: function () {
+                    // 对弹层中的表单进行初始化渲染
+                    form.render();
+                    // 表单提交事件
+                    form.on('submit(demo-login)', function (data) {
+                        // if (contype == "MTLS") {
+                        //     BuildConf.mtls = data.field.host + ":" + data.field.port
+                        // } else if (contype == "HTTP") {
+                        //     BuildConf.http = data.field.host + ":" + data.field.port
+                        // } else if (contype == "DNS") {
+                        //     BuildConf.dns = data.field.host + ":" + data.field.port
+                        // }
+                        var $ = layui.$;
+                        var conf = {
+                            host: data.field.host,
+                            port: data.field.port,
+                        };
+                        $.ajax({
+
+                            url:"/mtls/listening",
+                            type:"post",
+                            data: JSON.stringify(conf),
+                            dataType:"json",
+                            headers : {'Content-Type' : 'application/json;charset=utf-8'},
+                            success:function(result){
+                                if (result.code == 200) {
+                                    layer.msg('监听成功'+ util.escape(result.msg));
+                                } else {
+                                    layer.msg('监听失败');
+                                }
+                            }
+                        });
+                        layer.closeAll()
+                    });
+                }
+            });
+        }
+
+
+
+        window.edit = function (obj) {
+            window.location.href="/implant/download?implants_name=" + obj.data['name']
+        }
+
+        window.del = function (obj) {
+            layer.confirm('删除此服务器配置？', {
+                icon: 3,
+                title: '提示'
+            }, function (index) {
+                layer.close(index);
+                let loading = layer.load(2, {shade: [0.35, '#ccc']});
+                $.ajax({
+                    url: "/implant/del",
+                    data: {name: obj.data['name']},
+                    dataType: 'json',
+                    type: 'POST',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.code == 200) {
+                            layer.msg(result.msg, {
+                                icon: 1,
+                                time: 1000
+                            }, function () {
+                                window.refresh();
+                            });
+                        } else {
+                            layer.close(loading);
+                            layer.msg(result.msg, {
+                                icon: 2,
+                                time: 1000
+                            });
+                        }
+                    }
+                })
+            });
+        }
+
+        window.batchRemove = function(obj) {
+
+            var checkIds = common.checkField(obj, 'name');
+
+            if (checkIds === "") {
+                layer.msg("未选中数据", {
+                    icon: 3,
+                    time: 1000
+                });
+                return false;
+            }
+
+            layer.confirm('确定要删除这些用户', {
+                icon: 3,
+                title: '提示'
+            }, function(index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: "/implant/del",
+                    data: {name: checkIds},
+                    dataType: 'json',
+                    type: 'POST',
+                    success: function(result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            layer.msg(result.msg, {
+                                icon: 1,
+                                time: 1000
+                            }, function() {
+                                table.reload('user-table');
+                            });
+                        } else {
+                            layer.msg(result.msg, {
+                                icon: 2,
+                                time: 1000
+                            });
+                        }
+                    }
+                })
+            });
+        }
+
+        window.refresh = function (param) {
+            table.reload('role-table');
+        }
+    })
+</script>
+</body>
+
+</html>

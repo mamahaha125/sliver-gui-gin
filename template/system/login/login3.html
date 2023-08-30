@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Login Page</title>
+    <!-- 样 式 文 件 -->
+    <link rel="stylesheet" href="/static/component/pear/css/pear.css"/>
+    <link rel="stylesheet" href="/static/admin/css/other/login.css"/>
+</head>
+<!-- 代 码 结 构 -->
+<body background="/static/admin/images/background.svg" style="background-size: cover;">
+<form class="layui-form" action="javascript:void(0);">
+    <div class="layui-form-item">
+        <img class="logo" src="/static/admin/images/logo.png"/>
+        <div class="title">Pear Admin</div>
+        <div class="desc">
+            明 湖 区 最 具 影 响 力 的 设 计 规 范 之 一
+        </div>
+    </div>
+    <div class="layui-upload-drag" style="display: block;" id="ID-upload-demo-drag" lay-options="{
+    accept: 'file',
+    exts: 'cfg'
+  }">
+        <i class="layui-icon layui-icon-upload"></i>
+        <div>点击上传Sliver服务端配置文件</div>
+        <div class="layui-hide" id="ID-upload-demo-preview">
+            <hr>
+            <img src="" alt="上传成功后渲染" style="max-width: 100%">
+        </div>
+    </div>
+    <div class="desc">
+        Select a Server
+    </div>
+    <div class="layui-form-item">
+        <select lay-search=""  name="conf">
+            <option>请选择或搜索（默认不区分大小写）</option>
+            {{range $v := .confs}}
+            <option name="{{$v}}" value="{{$v}}">{{$v}}</option>
+            {{end}}
+        </select>
+    </div>
+
+	<div class="layui-form-item">
+		<button class="layui-btn layui-btn-fluid" lay-submit lay-filter="demo-login">Connect</button>
+	</div>
+</form>
+<!-- 资 源 引 入 -->
+<script src="/static/component/layui/layui.js"></script>
+<script src="/static/component/pear/pear.js"></script>
+<script>
+    // 上传表单
+    layui.use(function () {
+        var upload = layui.upload;
+        var $ = layui.$;
+        // 渲染
+        upload.render({
+            elem: '#ID-upload-demo-drag',
+            accept: 'file',
+            url: '/conf/client/import', // 此处用的是第三方的 http 请求演示，实际使用时改成您自己的上传接口即可。
+            done: function (res) {
+                layer.msg('上传成功');
+                // $('#ID-upload-demo-preview').removeClass('layui-hide')
+                //     .find('cfg').attr('src', res.files.file);
+                // console.log(res)
+                parent.location.reload();
+            }
+        });
+    });
+
+    // 上传cfg
+	layui.use(function(){
+
+		var form = layui.form;
+		var layer = layui.layer;
+		// 提交事件
+		form.on('submit(demo-login)', function(data){
+			var field = data.field; // 获取表单字段值
+            var $ = layui.$;
+			// 显示填写结果，仅作演示用
+			// layer.alert(JSON.stringify(field), {
+			// 	title: '当前填写的字段值'
+			// });
+			// 此处可执行 Ajax 等操作
+            $.ajax({
+                url:"/login",
+                type:"post",
+                data:JSON.stringify(field),
+                dataType:"json",
+                headers : {'Content-Type' : 'application/json;charset=utf-8'},
+                success:function(result){
+                    if (result.code == 200) {
+                        location.href = "/sliver/index";
+
+                    }
+                }
+            });
+			return false; // 阻止默认 form 跳转
+		});
+	});
+</script>
+</body>
+</html>

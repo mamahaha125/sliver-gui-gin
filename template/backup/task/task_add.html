@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/component/pear/css/pear.css" />
+</head>
+<body>
+<form class="layui-form" action="" id="spider_add">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">源类型</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="source_type" value="1" lay-filter="source_type" title="本地">
+                        <input type="radio" name="source_type" value="2" lay-filter="source_type" title="服务器" checked>
+                    </div>
+                </div>
+                <div class="layui-form-itemlayui-form-item source-menu">
+                    <label class="layui-form-label">源服务器</label>
+                    <div class="layui-input-inline">
+                        <select name="source_server" lay-search>
+                            <option value=""></option>
+                            {{range $v := .servers}}
+                            <option value="{{$v.Id}}">{{$v.ServerName}}</option>
+                            {{end}}
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">源地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="source_path" lay-verify="required" autocomplete="off"  class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">目标类型</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="dst_type" lay-verify="dst_type" lay-filter="dst_type" value="1" title="本地" checked>
+                        <input type="radio" name="dst_type" lay-verify="dst_type" lay-filter="dst_type" value="2" title="服务器">
+                    </div>
+                </div>
+                <div class="layui-form-item dst-menu" style="display: none;">
+                    <label class="layui-form-label">目标服务器</label>
+                    <div class="layui-input-inline">
+                        <select name="dst_server" lay-search>
+                            <option value=""></option>
+                            {{range $v := .servers}}
+                            <option value="{{$v.Id}}">{{$v.ServerName}}</option>
+                            {{end}}
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">目标地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="dst_path" lay-verify="required" autocomplete="off"  class="layui-input">
+                    </div>
+                </div>
+<!--                <div class="layui-form-item">-->
+<!--                    <label class="layui-form-label">排除类型</label>-->
+<!--                    <div class="layui-input-block">-->
+<!--                        <input type="text" name="exclude_type" lay-verify="" placeholder="多个请用,分隔开,如.jpg,.png" autocomplete="off"  class="layui-input">-->
+<!--                    </div>-->
+<!--                </div>-->
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <button type="submit" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit="" lay-filter="user-save">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button type="reset" class="pear-btn pear-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>
+</form>
+<script src="/static/component/layui/layui.js"></script>
+<script src="/static/component/pear/pear.js"></script>
+<script>
+    layui.use(['form','notice','jquery'],function(){
+        let form = layui.form;
+        let $ = layui.jquery;
+        let notice = layui.notice;
+
+        form.on('radio(source_type)', function(data){
+            if(data.value==1){
+                $(".source-menu").hide();
+            }else{
+                $(".source-menu").show();
+            }
+        });
+
+        form.on('radio(dst_type)', function(data){
+            if(data.value==1){
+                $(".dst-menu").hide();
+            }else{
+                $(".dst-menu").show();
+            }
+        });
+        form.on('submit(user-save)', function(data){
+            layer.load(2, { shade: [0.35, '#ccc'] });
+            $.ajax({
+                url:'/system/task/add',
+                data: $('#spider_add').serialize(),
+                dataType:'json',
+                type:'post',
+                success:function(result){
+                    layer.closeAll('loading');
+                    if(result.code == 200){
+                        layer.msg(result.msg,{icon:1,time:1400},function(){
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                            parent.layui.table.reload("role-table");
+                        });
+                    }else{
+                        notice.warning(result.msg);
+                    }
+                }
+            })
+            return false;
+        });
+    })
+</script>
+<script>
+</script>
+</body>
+</html>
