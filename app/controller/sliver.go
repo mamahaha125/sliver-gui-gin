@@ -52,6 +52,7 @@ func SearchConf(c *gin.Context) {
 		"message": "Client's config!",
 		"client":  conf.ConnectRpc,
 	})
+	response2.SuccessResp(c).SetData(conf.ConnectRpc).WriteJsonExit()
 }
 
 // @Title ChooseConf

@@ -63,9 +63,9 @@ func PSList() []PsList {
 		PS.Ppid = v.Ppid
 		PS.Owner = v.Owner
 		PS.Arch = v.Architecture
-		for name := range v.CmdLine {
-			Cmd = fmt.Sprintf("%s", name) + " " + Cmd
-		}
+		//for name := range v.CmdLine {
+		//	Cmd = fmt.Sprintf("%s", name) + " " + Cmd
+		//}
 		PS.CmdLine = Cmd
 		List = append(List, PS)
 	}

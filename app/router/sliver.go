@@ -15,6 +15,8 @@ func SliverRouter(route *gin.Engine) {
 		//sliver.GET("/client/connect", controller.RpcConnect)
 		sliver.POST("/client/user", controller.ChooseConf)
 
+		sliver.GET("/client/search/conf", controller.SearchConf)
+
 		//sliver.POST("/client/rpc", controller.ConnectRPC)
 	}
 	slivers := route.Group("sliver")
