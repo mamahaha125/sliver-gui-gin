@@ -48,10 +48,6 @@ func SearchConf(c *gin.Context) {
 		conf.ConnectRpc = append(conf.ConnectRpc, k)
 	}
 	sort.Strings(conf.ConnectRpc)
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Client's config!",
-		"client":  conf.ConnectRpc,
-	})
 	response2.SuccessResp(c).SetData(conf.ConnectRpc).WriteJsonExit()
 }
 
