@@ -30,7 +30,8 @@ func ChooseSession(c *gin.Context) {
 	if err != nil {
 		response.ErrorResp(c).WriteJsonExit()
 	}
-	c.HTML(http.StatusOK, "sessions_file.html", nil)
+	response.SuccessResp(c).WriteJsonExit()
+	//c.HTML(http.StatusOK, "sessions_file.html", nil)
 }
 
 func GetSessionsPage(c *gin.Context) {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"embed"
 	"fmt"
 	"net/http"
 	"os"
@@ -18,11 +17,11 @@ import (
 	"time"
 )
 
-//go:embed template
-var templateFs embed.FS
-
-//go:embed static
-var staticFs embed.FS
+////go:embed template
+//var templateFs embed.FS
+//
+////go:embed static
+//var staticFs embed.FS
 
 func main() {
 	if err := validate.InitTrans("zh"); err != nil {
@@ -34,7 +33,8 @@ func main() {
 	db.InitConn()
 
 	redis.InitRedis()
-	r := router.InitRouter(staticFs, templateFs)
+	//r := router.InitRouter(staticFs, templateFs)
+	r := router.InitRouter()
 	s := &http.Server{
 		Addr:           fmt.Sprintf(":%d", config.Instance().App.HttpPort),
 		Handler:        r,

@@ -3,7 +3,7 @@ package e
 import "time"
 
 const (
-	DefaultAvatar  = "/static/admin/images/avatar.jpg"
+	DefaultAvatar  = "/admin/images/avatar.jpg"
 	DefUploadSize  = 2 * 1024 * 1024 // 默认最大上传
 	DefaultSaltLen = 10
 
