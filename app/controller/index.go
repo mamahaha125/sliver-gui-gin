@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	e2 "pear-admin-go/app/global/e"
+	response2 "pear-admin-go/app/global/response"
 	"pear-admin-go/app/model"
 	"pear-admin-go/app/service"
 	pkg "pear-admin-go/app/util/file"
@@ -25,9 +26,6 @@ import (
 
 func Index(c *gin.Context) {
 	user := &model.Admin{}
-	//if pkg.CheckNotExist(service.GetImgSavePath(user.Avatar)) {
-	//	user.Avatar = e2.DefaultAvatar
-	//}
 	site := &model.SiteConf{}
 
 	c.HTML(http.StatusOK, "index.html", gin.H{
@@ -51,5 +49,5 @@ func SliverIndex(c *gin.Context) {
 }
 
 func FramePage(c *gin.Context) {
-	c.HTML(http.StatusOK, "main.html", gin.H{})
+	response2.SuccessResp(c).WriteJsonExit()
 }
